@@ -2,37 +2,17 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { buildCatalog } from "./lib/catalog.mjs";
-import { buildLayout } from "./lib/layout.mjs";
-import { buildBusinessCatalog } from "./lib/business.mjs";
-import { buildPhaseLayouts, omitScenarioHarness } from "./lib/phases.mjs";
-import { addNodeDetails } from "./lib/node-details.mjs";
+import { buildSnapshot } from "./lib/snapshot.mjs";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const workspace = path.dirname(root);
 let port = Number(process.env.PORT || 4317);
-const sourceCatalog = buildCatalog(
+const snapshot = await buildSnapshot(
   await readFile(path.join(workspace, "mednetstructure.json"), "utf8"),
 );
-const businessCatalog = buildBusinessCatalog(sourceCatalog);
-addNodeDetails(sourceCatalog, businessCatalog);
-const catalog = omitScenarioHarness(sourceCatalog);
-const visibleNodeIds = new Set(catalog.nodes.map((node) => node.id));
-for (const node of businessCatalog.nodes) {
-  node.technicalNodeIds = node.technicalNodeIds.filter((id) =>
-    visibleNodeIds.has(id),
-  );
-}
-const catalogJson = JSON.stringify(catalog);
-const layoutsJson = JSON.stringify({
-  control: await buildLayout(catalog),
-  data: await buildLayout(catalog, "data"),
-  phases: await buildPhaseLayouts(catalog, true),
-});
-const businessJson = JSON.stringify({
-  catalog: businessCatalog,
-  layout: await buildLayout(businessCatalog),
-  phases: await buildPhaseLayouts(businessCatalog),
-});
+const catalog = snapshot.catalog;
+const catalogJson = JSON.stringify(snapshot.catalog);
+const layoutsJson = JSON.stringify(snapshot.layout);
+const businessJson = JSON.stringify(snapshot.business);
 const assets = {
   "/": ["public/index.html", "text/html; charset=utf-8"],
   "/app.js": ["public/app.js", "text/javascript; charset=utf-8"],

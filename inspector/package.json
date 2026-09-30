@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Local, read-only MedNet workflow inspection application",
   "scripts": {
+    "build:hosted": "node scripts/build-hosted.mjs",
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
     "test:browser": "playwright test"
