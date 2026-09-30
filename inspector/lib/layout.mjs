@@ -1,6 +1,7 @@
 import ELK from "elkjs/lib/elk.bundled.js";
 import { repairRoutes } from "./route-repair.mjs";
 import { buildClusters } from "./clusters.mjs";
+import { compactFlow } from "./compact-flow.mjs";
 
 export const NODE_WIDTH = 260;
 export const NODE_HEIGHT = 148;
@@ -44,9 +45,8 @@ export async function buildLayout(catalog, mode = "control", overrides = {}) {
       "elk.layered.spacing.nodeNodeBetweenLayers": "85",
       "elk.layered.spacing.edgeNodeBetweenLayers": "25",
       "elk.layered.spacing.edgeEdgeBetweenLayers": "18",
-      // The unlimited canvas does not need row wrapping. Preserve forward
-      // progress instead of bending a sequence back around earlier cards.
-      "elk.layered.wrapping.strategy": "OFF",
+      "elk.layered.wrapping.strategy": mode === "data" ? "MULTI_EDGE" : "OFF",
+      "elk.aspectRatio": "1.8",
       "elk.randomSeed": "7",
       ...overrides,
     },
@@ -74,6 +74,7 @@ export async function buildLayout(catalog, mode = "control", overrides = {}) {
             ],
     })),
   });
+  if (mode === "control") await compactFlow(graph, elk);
   const routes = new Map(graph.edges.map((e) => [e.id, e]));
   const result = repairRoutes({
     width: graph.width,
@@ -94,5 +95,6 @@ export async function buildLayout(catalog, mode = "control", overrides = {}) {
     })),
   });
   result.clusters = buildClusters(catalog, result);
+  result.flowRuns = graph.flowRuns || [];
   return result;
 }

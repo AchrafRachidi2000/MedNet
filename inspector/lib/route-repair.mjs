@@ -96,7 +96,13 @@ function makeRouter(nodes) {
       (a, b) => a - b,
     );
   const xs = unique(
-    nodes.flatMap((n) => [n.x - 28, n.x, n.x + n.width, n.x + n.width + 28]),
+    nodes.flatMap((n) => [
+      n.x - 28,
+      n.x,
+      n.x + n.width / 2,
+      n.x + n.width,
+      n.x + n.width + 28,
+    ]),
   );
   const ys = unique(
     nodes.flatMap((n) => [
@@ -125,16 +131,38 @@ function makeRouter(nodes) {
         );
     }
   return (source, target) => {
-    const start = {
-        x: source.x + source.width,
-        y: source.y + source.height / 2,
-      },
-      end = { x: target.x, y: target.y + target.height / 2 };
+    const verticallySeparated =
+      target.y >= source.y + source.height + 60 ||
+      source.y >= target.y + target.height + 60;
+    const down = target.y > source.y,
+      right = target.x > source.x;
+    const aligned = Math.abs(target.x - source.x) < source.width;
+    const useVertical = verticallySeparated && aligned;
+    const start = useVertical
+      ? {
+          x: source.x + source.width / 2,
+          y: source.y + (down ? source.height : 0),
+        }
+      : {
+          x: source.x + (right ? source.width : 0),
+          y: source.y + source.height / 2,
+        };
+    const end = useVertical
+      ? {
+          x: target.x + target.width / 2,
+          y: target.y + (down ? 0 : target.height),
+        }
+      : {
+          x: target.x + (right ? 0 : target.width),
+          y: target.y + target.height / 2,
+        };
+    const dx = useVertical ? 0 : right ? 28 : -28;
+    const dy = useVertical ? (down ? 28 : -28) : 0;
     const ix = (a, v) => a.indexOf(Math.round(v * 1000) / 1000);
-    const sx = ix(xs, start.x + 28),
-      sy = ix(ys, start.y),
-      tx = ix(xs, end.x - 28),
-      ty = ix(ys, end.y);
+    const sx = ix(xs, start.x + dx),
+      sy = ix(ys, start.y + dy),
+      tx = ix(xs, end.x - dx),
+      ty = ix(ys, end.y - dy);
     const startKey = (sy * nx + sx) * 2,
       targetCell = ty * nx + tx;
     const cost = new Float64Array(nx * ny * 2).fill(Infinity),
@@ -269,5 +297,18 @@ export function repairRoutes(layout) {
       obstacles.push(label);
     }
   }
+  const extentPoints = [
+    ...layout.nodes.map((n) => ({ x: n.x + n.width, y: n.y + n.height })),
+    ...layout.edges.flatMap((e) => [
+      ...e.sections.flatMap((s) => [
+        s.startPoint,
+        ...(s.bendPoints || []),
+        s.endPoint,
+      ]),
+      ...e.labels.map((l) => ({ x: l.x + l.width, y: l.y + l.height })),
+    ]),
+  ];
+  layout.width = Math.max(layout.width, ...extentPoints.map((p) => p.x + 40));
+  layout.height = Math.max(layout.height, ...extentPoints.map((p) => p.y + 40));
   return layout;
 }

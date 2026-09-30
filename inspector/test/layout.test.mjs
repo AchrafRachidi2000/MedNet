@@ -36,27 +36,79 @@ test("connection layout retains every node, route and condition", () => {
       assert.equal(e.labels[0].text, source.label);
   }
 });
-test("process flow progresses strictly left to right without artificial row wrapping", () => {
+test("long process flows use balanced short runs with consistent direction inside each run", () => {
   const nodes = new Map(control.nodes.map((node) => [node.id, node]));
+  assert.ok(control.width < 8000, "must not return to a 30,000px strip");
+  assert.ok(
+    control.width / control.height > 0.5 && control.width / control.height < 2,
+  );
+  assert.ok(control.flowRuns.length > 1);
+  const runById = new Map(
+    control.flowRuns.flatMap((run, index) =>
+      run.nodeIds.map((id) => [id, { index, direction: run.direction }]),
+    ),
+  );
+  assert.equal(runById.size, control.nodes.length);
   for (const edge of control.edges) {
     const source = nodes.get(edge.source),
       target = nodes.get(edge.target);
-    assert.ok(
-      target.x >= source.x + source.width,
-      `${edge.id} reverses direction`,
-    );
-    for (const section of edge.sections) {
-      const points = [
-        section.startPoint,
-        ...(section.bendPoints || []),
-        section.endPoint,
-      ];
-      for (let i = 1; i < points.length; i++)
-        assert.ok(
-          points[i].x >= points[i - 1].x - 0.01,
-          `${edge.id} has a backward detour`,
-        );
-    }
+    const a = runById.get(source.id),
+      b = runById.get(target.id);
+    assert.ok(b.index >= a.index, "process cannot return to an earlier run");
+    if (a.index === b.index)
+      assert.ok(
+        a.direction === "right"
+          ? target.x >= source.x + source.width
+          : target.x + target.width <= source.x,
+      );
+  }
+});
+
+test("a folded sequence connects adjacent runs at nearby top and bottom ports", async () => {
+  const nodes = Array.from({ length: 10 }, (_, i) => ({
+    id: String(i),
+    order: i,
+    stage: "sequence",
+  }));
+  const edges = nodes
+    .slice(1)
+    .map((n, i) => ({
+      id: `edge-${i}`,
+      source: String(i),
+      target: n.id,
+      label: "Continue",
+    }));
+  const diagram = await buildLayout({
+    nodes,
+    edges,
+    mappings: [],
+    stages: [{ id: "sequence" }],
+  });
+  const runById = new Map(
+    diagram.flowRuns.flatMap((r, i) => r.nodeIds.map((id) => [id, i])),
+  );
+  for (const e of diagram.edges.filter(
+    (e) => runById.get(e.source) !== runById.get(e.target),
+  )) {
+    const a = diagram.nodes.find((n) => n.id === e.source),
+      b = diagram.nodes.find((n) => n.id === e.target);
+    const section = e.sections[0];
+    assert.equal(section.startPoint.y, a.y + a.height);
+    assert.equal(section.endPoint.y, b.y);
+    const p = [
+      section.startPoint,
+      ...(section.bendPoints || []),
+      section.endPoint,
+    ];
+    const length = p
+      .slice(1)
+      .reduce(
+        (sum, x, i) => sum + Math.abs(x.x - p[i].x) + Math.abs(x.y - p[i].y),
+        0,
+      );
+    const direct =
+      Math.abs(p.at(-1).x - p[0].x) + Math.abs(p.at(-1).y - p[0].y);
+    assert.ok(length <= direct * 1.1, "no long return around the previous run");
   }
 });
 test("cards do not overlap and every routed line attaches to its real endpoints without crossing cards", () => {
