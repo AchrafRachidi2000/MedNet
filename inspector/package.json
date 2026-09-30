@@ -1,0 +1,23 @@
+{
+  "name": "mednet-workflow-inspector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local, read-only MedNet workflow inspection application",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "prettier": "^3.9.9"
+  },
+  "dependencies": {
+    "elkjs": "0.11.0"
+  }
+}

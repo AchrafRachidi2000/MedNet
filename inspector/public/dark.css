@@ -1,0 +1,593 @@
+/* A single, deliberately dark workspace. Phase hues remain semantic. */
+:root {
+  color-scheme: dark;
+  --ink: #e5eeea;
+  --muted: #b6cac1;
+  --accent: #67efbb;
+  --accent-dark: #a4f9d6;
+  --line: #334541;
+  --soft: #1b2827;
+  --surface: #162120;
+  --amber: #ffd080;
+  --purple: #d4b3ff;
+  --teal: #83eeeb;
+  --canvas: #101819;
+  --raised: #1d2b29;
+  --hover: #273b35;
+}
+html[data-theme="dark"] body {
+  background: var(--canvas);
+  color: var(--ink);
+}
+html[data-theme="dark"] :is(button, a, input, select, summary):focus-visible {
+  outline-color: #95dfc7;
+}
+html[data-theme="dark"] ::selection {
+  background: #365c52;
+  color: #f0f7f4;
+}
+html[data-theme="dark"] * {
+  scrollbar-color: #4d645d transparent;
+}
+html[data-theme="dark"]
+  :is(
+    .topbar,
+    .map-heading,
+    .map-stages,
+    .map-legend,
+    #inspector,
+    .dialog,
+    .boot
+  ) {
+  background: var(--surface);
+  border-color: var(--line);
+}
+html[data-theme="dark"]
+  :is(
+    .map-heading h1,
+    .mobile-map-title,
+    .map-brand,
+    .brand,
+    .inspector-title h2,
+    .dialog h2,
+    .dialog h3,
+    .boot h1
+  ) {
+  color: #eff9f3;
+}
+html[data-theme="dark"]
+  :is(
+    .breadcrumb,
+    .snapshot-tag,
+    .map-heading > div > span,
+    .map-heading i,
+    .legend-item,
+    .legend-guide,
+    .map-node-count,
+    .flow-direction,
+    .map-stages button > span,
+    .map-stages button,
+    .business-card-kind
+  ) {
+  color: var(--muted);
+}
+html[data-theme="dark"] .brand-mark {
+  background: #227951;
+  color: #eaf8ef;
+}
+html[data-theme="dark"] .map-toolbar {
+  background: #14201e;
+  border-color: var(--line);
+}
+html[data-theme="dark"]
+  :is(
+    .button,
+    select,
+    .node-link,
+    .field-tree-row,
+    .map-footer > div,
+    .edge-description,
+    .minimap
+  ) {
+  background: var(--raised);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 6px 22px #0003;
+}
+html[data-theme="dark"]
+  :is(
+    .button:hover,
+    .icon-button:hover,
+    .node-link:hover,
+    .map-stages button:hover
+  ) {
+  background: var(--hover);
+  border-color: #527b6c;
+}
+html[data-theme="dark"]
+  :is(
+    .search-box,
+    .segmented,
+    .reader-local,
+    .source-text,
+    .code-lines,
+    .field-path
+  ) {
+  background: #101c1a;
+  color: var(--ink);
+  border-color: var(--line);
+}
+html[data-theme="dark"] .search-box:focus-within {
+  border-color: var(--accent);
+}
+html[data-theme="dark"] .search-box input {
+  color: var(--ink);
+}
+html[data-theme="dark"] .search-box input::placeholder {
+  color: #9db0a8;
+}
+html[data-theme="dark"] .search-box kbd {
+  background: #21312c;
+  color: var(--muted);
+  border-color: var(--line);
+}
+html[data-theme="dark"] :is(.segmented button, .tabs button, .tag, .badge) {
+  color: var(--muted);
+}
+html[data-theme="dark"]
+  :is(
+    .segmented button.active,
+    .map-stages button.active,
+    .mobile-controls-toggle[aria-expanded="true"]
+  ) {
+  background: #235b43;
+  color: #a5ffcf;
+  box-shadow: none;
+}
+html[data-theme="dark"] .map-mode .graph-viewport {
+  background-color: var(--canvas);
+  background-image: radial-gradient(#34433e 0.8px, transparent 0.8px);
+}
+html[data-theme="dark"] .graph-node {
+  background: #203431;
+  border-color: #537967;
+  box-shadow: 0 4px 12px #0004;
+}
+html[data-theme="dark"] .graph-node.phase-boundary {
+  background: #1a2c27;
+}
+html[data-theme="dark"] .graph-node strong {
+  color: #edf9f0;
+}
+html[data-theme="dark"] .graph-node .node-description {
+  color: #b7e3d0;
+}
+html[data-theme="dark"]
+  :is(
+    .graph-node small,
+    .graph-node .graph-node-foot,
+    .node-code,
+    .boundary-code,
+    .phase-boundary .business-card-kind,
+    .phase-boundary .boundary-jump,
+    .branch-count
+  ) {
+  color: #bfdccd;
+}
+html[data-theme="dark"] .graph-node:hover {
+  border-color: #76f0bb;
+}
+html[data-theme="dark"] .graph-node.unrelated-node {
+  opacity: 0.76;
+}
+html[data-theme="dark"] .graph-node.search-dimmed {
+  opacity: 0.35;
+}
+html[data-theme="dark"] .graph-node.selected {
+  background: #1e4b38;
+  border-color: #65f4b3;
+  box-shadow:
+    0 0 0 5px #67efbb30,
+    0 5px 20px #0004;
+}
+html[data-theme="dark"] .graph-node.search-match {
+  background: #38321e;
+  border-color: #e6c079;
+}
+html[data-theme="dark"] .graph-edge {
+  stroke: #a8cfc0;
+}
+html[data-theme="dark"] .graph-edge.exit-connection {
+  stroke: #efbd74;
+}
+html[data-theme="dark"] .graph-edge.relevant {
+  stroke: #69efb3;
+}
+html[data-theme="dark"] .edge-casing {
+  stroke: var(--canvas);
+}
+html[data-theme="dark"] .edge-label {
+  color: #d4eee0;
+  background: #192c25;
+  border-color: #5e997b;
+  box-shadow: 0 2px 6px #0005;
+}
+html[data-theme="dark"] .edge-label.relevant {
+  background: #264637;
+  border-color: #7ce9b2;
+}
+html[data-theme="dark"]
+  .graph-viewport
+  .graph-edge.arrival-path:not(.path-highlight) {
+  stroke: #6dffc0;
+}
+html[data-theme="dark"]
+  .graph-viewport
+  .graph-node.arrival-node:not(.path-endpoint) {
+  border-color: #6dffc0;
+  box-shadow: 0 0 0 5px #6dffc030;
+}
+html[data-theme="dark"] :is(.phase-arrival, .edge-label.arrival-path) {
+  background: #1b3b2e;
+  border-color: #53c68b;
+  color: #adffd1;
+}
+html[data-theme="dark"] .phase-arrival > span > span {
+  color: #c0d8ca;
+}
+html[data-theme="dark"]
+  :is(.graph-edge.path-highlight, .graph-edge:hover, .graph-edge:focus) {
+  stroke: #91c9ff;
+}
+html[data-theme="dark"] .graph-node.path-endpoint {
+  border-color: #91c9ff;
+  box-shadow: 0 0 0 4px #91c9ff40;
+}
+html[data-theme="dark"] .edge-label.path-highlight {
+  border-color: #91c9ff;
+  background: #204b79;
+  color: #d5ebff;
+}
+html[data-theme="dark"] :is(.map-footer #zoom-value, .minimap > span) {
+  color: #bdd2c5;
+}
+html[data-theme="dark"] .map-footer > span {
+  background: #101819e8;
+  color: var(--muted);
+}
+html[data-theme="dark"] #minimap path {
+  stroke: #91bba8;
+}
+html[data-theme="dark"]
+  #minimap
+  rect:not(.minimap-cluster):not(#minimap-window) {
+  fill: #7ec3a0;
+}
+html[data-theme="dark"] #minimap-window {
+  stroke: #81ffc3;
+  fill: #81ffc326;
+}
+
+/* Rich phase colors: brighter borders and labels on saturated dark fills. */
+html[data-theme="dark"] .stage-intake {
+  --cluster-bg: #17452f;
+  --cluster-line: #47dba1;
+  --cluster-ink: #a0f6c0;
+}
+html[data-theme="dark"] .stage-documents {
+  --cluster-bg: #193e60;
+  --cluster-line: #57acff;
+  --cluster-ink: #b6ddff;
+}
+html[data-theme="dark"] .stage-identity {
+  --cluster-bg: #442b63;
+  --cluster-line: #ae83ff;
+  --cluster-ink: #e2ccff;
+}
+html[data-theme="dark"] .stage-registration {
+  --cluster-bg: #573321;
+  --cluster-line: #ffab68;
+  --cluster-ink: #ffcea4;
+}
+html[data-theme="dark"] .stage-review {
+  --cluster-bg: #494019;
+  --cluster-line: #f2cf58;
+  --cluster-ink: #ffec9e;
+}
+html[data-theme="dark"] .stage-policy {
+  --cluster-bg: #164648;
+  --cluster-line: #41d7d1;
+  --cluster-ink: #a1f4ed;
+}
+html[data-theme="dark"] .stage-clinical {
+  --cluster-bg: #303965;
+  --cluster-line: #8898ff;
+  --cluster-ink: #cdd4ff;
+}
+html[data-theme="dark"] .stage-invoices {
+  --cluster-bg: #502840;
+  --cluster-line: #ef81c6;
+  --cluster-ink: #ffc5e9;
+}
+html[data-theme="dark"] .stage-handoff {
+  --cluster-bg: #273f4e;
+  --cluster-line: #75c7ed;
+  --cluster-ink: #bce9ff;
+}
+html[data-theme="dark"] .map-stages button.active:not([data-map-stage="all"]) {
+  background: var(--cluster-bg);
+  color: var(--cluster-ink);
+}
+html[data-theme="dark"] .map-stages button.active > span {
+  color: inherit;
+}
+html[data-theme="dark"] :is(.badge, .tag) {
+  background: #273730;
+}
+html[data-theme="dark"] .type-agent {
+  background: #4b2d6d;
+  color: #e3c6ff;
+}
+html[data-theme="dark"] :is(.type-code, .type-activity, .type-outcome) {
+  background: #205037;
+  color: #adf5c6;
+}
+html[data-theme="dark"] :is(.type-human, .type-decision, .warning-tag) {
+  background: #523c18;
+  color: #ffdc90;
+}
+html[data-theme="dark"] .type-sub_workflow {
+  background: #234f7b;
+  color: #c3e3ff;
+}
+html[data-theme="dark"] .type-integration {
+  background: #185157;
+  color: #a2f8f0;
+}
+html[data-theme="dark"] :is(.type-input, .type-output) {
+  background: #35475c;
+  color: #d3eaff;
+}
+html[data-theme="dark"] .type-border-agent {
+  border-left-color: #bb87ff;
+}
+html[data-theme="dark"]
+  :is(.type-border-code, .type-border-activity, .type-border-outcome) {
+  border-left-color: #50e5a0;
+}
+html[data-theme="dark"] :is(.type-border-human, .type-border-decision) {
+  border-left-color: #ffc85b;
+}
+html[data-theme="dark"] .type-border-sub_workflow {
+  border-left-color: #6db8ff;
+}
+html[data-theme="dark"] .type-border-integration {
+  border-left-color: #51e6d9;
+}
+html[data-theme="dark"] :is(.type-border-input, .type-border-output) {
+  border-left-color: #9ccdeb;
+}
+
+/* The reader: comfortable body copy, clear hierarchy, no bright white boxes. */
+html[data-theme="dark"]
+  :is(
+    .inspector-content p,
+    .explanation p,
+    .dialog > p,
+    .glossary dd,
+    .reader-facts dd,
+    .reader-list li,
+    .evidence-key p,
+    .boot p
+  ) {
+  color: #d4e2db;
+}
+html[data-theme="dark"]
+  :is(
+    .section-label,
+    .inspector-top .eyebrow,
+    .eyebrow,
+    .source-name,
+    .inspector-title p,
+    .editorial-tag,
+    .route-link > span,
+    .footnote,
+    .section-heading > span,
+    .source-meta,
+    .line-number,
+    .config-entry small,
+    .identifier-list dt,
+    .model-info span,
+    .setting-grid span,
+    .field-type,
+    .field-open code,
+    .dialog-eyebrow
+  ) {
+  color: var(--muted);
+}
+html[data-theme="dark"]
+  :is(
+    .detail-section > h3,
+    .detail-section .section-heading h3,
+    .reader-facts dt,
+    .field-open strong,
+    .glossary dt,
+    .model-info strong,
+    .setting-grid b,
+    .identifier-list dd,
+    .node-link span,
+    .node-link .icon,
+    .symbol-list button code,
+    .symbol-list button span,
+    summary
+  ) {
+  color: #e1f1e6;
+}
+html[data-theme="dark"]
+  :is(
+    .reader-facts dl > div,
+    .model-info div,
+    .setting-grid > div,
+    .field-tree-row .field-tree-row,
+    .mapping-card,
+    .map-help-grid section,
+    .io-summary button
+  ) {
+  background: #1a2925;
+  border-color: var(--line);
+}
+html[data-theme="dark"] :is(.external-service, .notice, .notice.teal) {
+  background: #1c3028;
+  border-color: #3e6350;
+  color: #bed9c7;
+}
+html[data-theme="dark"] :is(.notice p, .notice.compact p) {
+  color: inherit;
+}
+html[data-theme="dark"]
+  :is(
+    .reader-source,
+    .reader-evidence,
+    .footnote,
+    .symbol-list,
+    .route-card,
+    .config-entry,
+    .tabs,
+    .glossary > div
+  ) {
+  border-color: var(--line);
+}
+html[data-theme="dark"]
+  :is(
+    .source-line code,
+    .source-text,
+    .mapping-card code,
+    .field-path,
+    .io-summary strong,
+    .io-summary span,
+    .io-summary .icon
+  ) {
+  color: #bfd7c5;
+}
+html[data-theme="dark"]
+  :is(.notice.warning, .finding-card, .unresolved-variable, .tag.withheld) {
+  background: #342e20;
+  border-color: #695937;
+  color: #e5c995;
+}
+html[data-theme="dark"]
+  :is(
+    .finding-card h3,
+    .finding-card p,
+    .finding-card small,
+    .finding-card code,
+    .finding-card .eyebrow,
+    .unresolved-variable small,
+    .missing-internals,
+    .map-match-count,
+    .find-count
+  ) {
+  color: #e5c995;
+}
+html[data-theme="dark"] .warning-text {
+  color: #e5c995 !important;
+}
+html[data-theme="dark"] :is(.variables button, .route-condition) {
+  background: #223b2e;
+  border-color: #466652;
+  color: #c2ddc9;
+}
+html[data-theme="dark"] .source-line:hover {
+  background: #253c30;
+}
+html[data-theme="dark"] .source-line.line-match {
+  background: #3b3520;
+}
+html[data-theme="dark"] mark {
+  background: #6d5724;
+  color: #fff0b4;
+}
+html[data-theme="dark"] .dialog-overlay {
+  background: #040b0dd1;
+  backdrop-filter: blur(5px);
+}
+html[data-theme="dark"] #inspector,
+html[data-theme="dark"] .dialog {
+  box-shadow: 0 16px 60px #0007;
+}
+html[data-theme="dark"] .inspector-resize::after {
+  background: #668b78;
+}
+html[data-theme="dark"]
+  :is(
+    .inspector-resize:hover,
+    .inspector-resize:focus-visible,
+    .resizing-inspector .inspector-resize
+  ) {
+  background: #28473a;
+}
+html[data-theme="dark"] #toast {
+  background: #294936;
+  color: #e2efdf;
+  border: 1px solid #639875;
+}
+
+/* Numbered actions stay semantic lists. Nested facts use actual bullet lists. */
+.reader-list .numbered-actions {
+  padding-left: 30px;
+}
+.reader-list .numbered-actions > li {
+  margin: 18px 0 24px;
+  padding-left: 6px;
+}
+.reader-list .numbered-actions > li::marker {
+  content: counter(list-item) "- ";
+  color: var(--accent);
+  font-weight: 650;
+}
+.action-title {
+  color: #edf9f0;
+  font-weight: 600;
+  line-height: 1.65;
+}
+.reader-list .action-bullets {
+  margin-top: 9px;
+  padding-left: 20px;
+  list-style: disc;
+}
+.reader-list .action-bullets li {
+  margin: 5px 0;
+  padding-left: 3px;
+}
+.reader-list .action-bullets li::marker,
+.detail-bullets li::marker {
+  color: #72e4ab;
+}
+.map-mode .inspector-content .action-note {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.detail-bullets {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.detail-bullets li {
+  margin: 6px 0;
+}
+@media (max-width: 700px),
+  (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  html[data-theme="dark"] .map-heading {
+    background: #1b2925;
+    border-color: #496557;
+    box-shadow: 0 12px 40px #0008;
+  }
+  html[data-theme="dark"] .mobile-map-title {
+    color: #dcebe0;
+  }
+  .phase-arrival {
+    padding-left: 10px;
+    padding-right: 6px;
+  }
+}

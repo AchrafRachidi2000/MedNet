@@ -1,0 +1,15 @@
+# Local confidential inputs (required at runtime, never commit)
+/mednetstructure.json
+/*.pdf
+/*.docx
+/analysis/
+/tmp/
+.env
+.env.*
+!.env.example
+node_modules/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+Thumbs.db

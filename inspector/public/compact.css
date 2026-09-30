@@ -1,0 +1,231 @@
+/* Two-row workspace chrome. Secondary information opens over the canvas. */
+.map-heading-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.map-mode .map-heading-tools button {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  justify-content: center;
+}
+.map-mode .fullscreen-button span {
+  display: none;
+}
+.map-mode .map-heading-tools .map-key-toggle {
+  width: auto;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.map-mode .map-toolbar:empty {
+  display: none;
+}
+.map-mode .map-toolbar {
+  min-height: 36px;
+  padding: 2px 16px;
+  gap: 8px;
+}
+.map-mode .map-match-count {
+  margin-left: 0;
+  min-width: 42px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+html[data-theme="dark"] .graph-viewport .graph-node.search-current {
+  opacity: 1;
+  background: #443b20;
+  border-color: #ffe08a;
+  box-shadow:
+    0 0 0 5px #ffd66b45,
+    0 5px 18px #0005;
+}
+.map-mode .map-legend {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 23;
+  width: min(390px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+  margin: 0;
+  padding: 12px 18px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 14px 45px #0007;
+}
+.map-mode.map-key-open .map-legend {
+  display: grid;
+}
+.map-key-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.map-key-heading strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+.map-key-heading button {
+  min-width: 32px;
+  min-height: 32px;
+}
+.map-mode .map-legend .map-node-count {
+  grid-column: 1 / -1;
+  white-space: normal;
+  line-height: 1.6;
+}
+.map-mode .map-legend .legend-guide {
+  display: block;
+  grid-column: 1 / -1;
+  white-space: normal;
+  line-height: 1.6;
+  font-size: 12px;
+}
+.map-context-note {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.map-context-note .icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+}
+.map-mode .phase-arrival {
+  padding: 2px 14px;
+  font-size: 11px;
+}
+.map-mode .phase-arrival button {
+  min-height: 32px;
+  min-width: 32px;
+}
+
+@media (min-width: 701px) and (min-height: 501px), (min-width: 1001px) {
+  .map-mode .topbar {
+    display: none;
+  }
+  .map-mode #inspector {
+    top: 56px;
+  }
+  .map-mode .inspector-expanded #inspector {
+    top: 16px;
+  }
+  .map-mode .body-grid,
+  .map-mode .body-grid.has-inspector {
+    height: 100dvh;
+  }
+  .map-mode .map-heading {
+    min-height: 60px;
+    padding: 8px 16px;
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+  .map-mode .map-heading > div:first-of-type {
+    min-width: 150px;
+    flex: 1 1 auto;
+  }
+  .map-mode .map-heading h1 {
+    font-size: 18px;
+    letter-spacing: -0.35px;
+    line-height: 1.2;
+  }
+  .map-mode .map-heading > div:first-of-type > span {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+  .map-mode .map-search {
+    width: clamp(180px, 22vw, 310px);
+    height: 34px;
+    order: initial;
+    flex: 0 1 310px;
+  }
+  .map-mode .map-heading select {
+    height: 34px;
+    max-width: 130px;
+  }
+  .map-mode .map-stages {
+    padding: 3px 12px;
+    gap: 4px;
+    scrollbar-width: thin;
+  }
+  .map-mode .map-stages button {
+    padding: 6px 9px;
+    min-height: 32px;
+  }
+  .map-mode .audience-toggle button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .map-mode .map-footer [data-action="go-start"] {
+    display: inline-flex;
+    border-left: 1px solid var(--line);
+    margin-left: 4px;
+    padding-left: 12px;
+  }
+}
+/* Medium screens keep all controls visible in a tidy two-line control area. */
+@media (min-width: 701px) and (max-width: 1100px) and (min-height: 501px) {
+  .map-mode .map-heading {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+  .map-mode .map-heading > div:first-of-type {
+    flex: 1;
+    min-width: 210px;
+  }
+  .map-mode .map-search {
+    order: 4;
+    flex: 1 1 calc(100% - 160px);
+    width: auto;
+  }
+  .map-mode .map-heading select {
+    order: 5;
+    flex: 0 0 130px;
+  }
+  .map-mode .map-heading:has(#edge-mode[hidden]) .map-search {
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 700px),
+  (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .map-mode .topbar {
+    display: flex;
+  }
+  .map-mode .map-heading-tools {
+    gap: 6px;
+  }
+  .map-mode .map-heading-tools button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .map-mode .map-heading-tools .desktop-help,
+  .map-mode .map-heading-tools .desktop-glossary {
+    display: none;
+  }
+  .map-mode .map-key-heading button,
+  .map-mode .phase-arrival button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .map-mode .map-stages button {
+    min-height: 44px;
+  }
+  .map-mode .map-footer [data-action="go-start"] {
+    display: none;
+  }
+  .map-mode .map-toolbar .match-word {
+    display: none;
+  }
+}
