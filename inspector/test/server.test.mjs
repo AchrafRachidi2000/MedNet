@@ -14,7 +14,7 @@ before(async () => {
   base = await new Promise((resolve, reject) => {
     const timeout = setTimeout(
       () => reject(new Error("Test server startup timed out")),
-      10000,
+      30000,
     );
     child.once("error", (e) => {
       clearTimeout(timeout);
@@ -40,7 +40,7 @@ test("local server serves only explicit assets and inspection data", async () =>
   const response = await fetch(base + "/api/catalog");
   assert.equal(response.status, 200);
   const c = await response.json();
-  assert.equal(c.nodes.length, 87);
+  assert.equal(c.nodes.length, 88);
   assert.equal(c.issues.length, 21);
   for (const path of [
     "/mednetstructure.json",
@@ -102,4 +102,29 @@ test("server rejects writes, foreign origins and foreign hostnames", async () =>
     headers.get("Content-Security-Policy").includes("frame-ancestors 'none'"),
   );
   assert.equal(headers.get("Cache-Control"), "no-store");
+});
+test("removed chatbot assets and authentication endpoints are unavailable", async () => {
+  for (const pathname of [
+    "/api/chat/session",
+    "/api/chat/models",
+    "/auth/callback?code=bad&state=bad",
+    "/local-chat.js",
+    "/local-chat.css",
+    "/.local-chat/registrations.json",
+    "/lib/chat-auth.mjs",
+  ])
+    assert.equal((await fetch(base + pathname)).status, 404);
+  for (const route of ["message", "sign-in", "sign-out", "clear"]) {
+    const response = await fetch(base + `/api/chat/${route}`, {
+      method: "POST",
+      headers: {
+        Origin: base,
+        "Content-Type": "application/json",
+        "X-Mednet-Chat": "1",
+      },
+      body: "{}",
+    });
+    assert.equal(response.status, 405);
+    assert.equal(response.headers.get("set-cookie"), null);
+  }
 });

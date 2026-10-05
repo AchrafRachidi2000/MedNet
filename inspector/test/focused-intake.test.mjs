@@ -15,8 +15,8 @@ test("focused intake skips only scenario setup, retaining exact source provenanc
   const original = JSON.stringify(catalog);
   const harness = catalog.nodes.find((n) => n.name.startsWith("TEST-00 "));
   const visible = omitScenarioHarness(catalog);
-  assert.equal(visible.nodes.length, 87);
-  assert.equal(visible.edges.length, 110);
+  assert.equal(visible.nodes.length, 88);
+  assert.equal(visible.edges.length, 111);
   assert.equal(visible.stats.nodes, visible.nodes.length);
   assert.equal(visible.stats.edges, visible.edges.length);
   assert.equal(visible.stats.mappings, visible.mappings.length);

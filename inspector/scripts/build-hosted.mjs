@@ -105,5 +105,5 @@ await writeFile(
   ),
 );
 console.log(
-  `Prepared protected-hosting artifact: ${snapshot.catalog.nodes.length} technical nodes, ${snapshot.business.catalog.nodes.length} business steps. Original source files excluded. Verify Vercel Authentication protects ALL deployments before uploading.`,
+  `Prepared hosted snapshot: ${snapshot.catalog.nodes.length} technical nodes, ${snapshot.business.catalog.nodes.length} business steps. Original source files excluded. Review snapshot content and confirm the project's intended access policy before uploading.`,
 );

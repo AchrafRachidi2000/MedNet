@@ -21,8 +21,8 @@ const overlaps = (a, b) =>
   a.y < b.y + b.height - 0.01 &&
   a.y + a.height > b.y + 0.01;
 test("connection layout retains every node, route and condition", () => {
-  assert.equal(control.nodes.length, 88);
-  assert.equal(control.edges.length, 111);
+  assert.equal(control.nodes.length, 89);
+  assert.equal(control.edges.length, 112);
   assert.deepEqual(
     new Set(control.nodes.map((n) => n.id)),
     new Set(catalog.nodes.map((n) => n.id)),

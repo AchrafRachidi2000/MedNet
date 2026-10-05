@@ -366,7 +366,7 @@ const entries = [
     "R-04",
     "clinical",
     "Prepare the coding channels",
-    "Assemble channel-specific text and apply deterministic overrides. A document classified BOTH is routed to IP by the supplied code; inspect routes separately from labels.",
+    "Split mixed inpatient/outpatient documents by page where possible, and apply admission/day-operation overrides. Unsplit mixed documents fall back to inpatient with a warning.",
   ],
   [
     "R-04B",
@@ -486,7 +486,7 @@ const entries = [
     "T-05",
     "invoices",
     "Build invoice objects",
-    "Assemble invoice groups, services, diagnoses and bill currencies. The supplied implementation explicitly removes currency conversion.",
+    "Assemble invoice groups, services, diagnoses and original bill currencies. AED conversion of the inpatient expected amount happens later, before upload.",
   ],
   [
     "A-18",
@@ -511,6 +511,12 @@ const entries = [
     "invoices",
     "Choose the first upload path",
     "Choose the upload path according to the invoice channels present.",
+  ],
+  [
+    "C-03",
+    "invoices",
+    "Get the inpatient exchange rate",
+    "Look up the treatment-date OANDA rate for the inpatient expected amount in AED. Bill lines are not converted; missing rates are flagged for the reviewer.",
   ],
   [
     "API-011",
@@ -585,11 +591,11 @@ export const findings = [
     id: "fx",
     level: "difference",
     title: "Currency conversion differs across sources",
-    nodes: ["T-05", "A-13", "C-16"],
+    nodes: ["C-03", "API-011", "API-012", "T-05"],
     detail:
-      "The PDD specifies OANDA conversion. The guide and exported prompts/code describe retaining bill currencies, with conversion removed. Do not treat the requirement and this configuration as the same version.",
+      "The updated export retrieves OANDA rates only on the inpatient upload path. API-011 converts the expected claim amount (estimatedCost) to AED; invoice lines and outpatient amounts keep their bill currencies. This is narrower than the PDD's conversion requirement for all claim types.",
     evidence:
-      "PDD currency-conversion requirements and addenda; A-13 system prompt; T-05 _main_body comment and bill-currency handling.",
+      "PDD sections 5.1 and 11.5; C-03 main() and _rate(); API-011 estimatedCost handling; T-05 bill-currency handling.",
   },
   {
     id: "overrides",
@@ -616,9 +622,9 @@ export const findings = [
     title: "Mixed-document routing needs precise wording",
     nodes: ["A-11", "R-04"],
     detail:
-      "The exported channel gate changes an individual document classified BOTH to IP. A claim can still have separate IP and OP documents and use both coding channels. These are distinct cases.",
+      "The updated channel gate splits a BOTH document into inpatient and outpatient pages when page markers and evidence allow. It falls back to inpatient with a warning when it cannot separate the pages. Some agent wording still describes the older whole-document rule.",
     evidence:
-      'R-04 main(): if ch == "BOTH": ch = "IP". Compare the visual guide’s channel-routing explanation.',
+      "R-04 _split_both() and main(); compare A-11's instruction for a BOTH document.",
   },
   {
     id: "registration-order",

@@ -1,5 +1,11 @@
 // Explanations describe the supplied implementation, never execute its code.
 const services = {
+  "C-03": [
+    "OANDA historical exchange-rate service",
+    "Retrieve AED exchange rates for the inpatient invoice's expected claim amount only, before MedNext+ upload.",
+    "Prepared inpatient invoices and their currencies; claim treatment date (otherwise the first admission date); configured OANDA API key, whose value is withheld.",
+    "The claim with fx_expected: per-currency rates, actual dates used, source/basis, request trace and success/error details. A separate FX output carries the same rate record. No payable amount is approved.",
+  ],
   "C-00": [
     "Gateway authentication",
     "Obtain authorization for later service calls.",
@@ -75,7 +81,7 @@ const services = {
   "API-011": [
     "MedNext+ inpatient invoice service",
     "Create the prepared inpatient invoice records.",
-    "Inpatient invoice headers and service lines, batch/member/provider references, diagnoses, dates, claimed amounts/currencies and verified notes.",
+    "Inpatient invoice headers and service lines, batch/member/provider references, diagnoses, dates, original-currency claimed amounts and notes. estimatedCost is the sum of all inpatient invoices converted to AED, repeated on each invoice; missing foreign-currency rates produce zero plus a manual-correction note. Approved quantities are zero, not approval.",
     "A per-invoice result containing returned invoice references and success/failure details, retained on the claim.",
   ],
   "API-012": [
@@ -105,6 +111,31 @@ const services = {
 };
 
 const actions = {
+  "API-004": [
+    "Prepare the email-originated claim for MEMS registration, preserving the supplied claim and document references.",
+    "Format the Emirates ID from authoritative member evidence; select the member's contact email without using a provider role mailbox. For certain field refusals, rebuild supported values and retry once; retain MEMS's exact refusal if unresolved.",
+    "Adopt the canonical UCRN/submission identifiers returned in MEMS's own response data, retaining the original references for traceability.",
+  ],
+  "API-004R": [
+    "Reconcile the reviewed claim with MEMS, reusing or updating registration according to the previous result.",
+    "Apply the same Emirates-ID and member-email safeguards as initial registration, retain returned canonical references, and expose refused fields instead of presenting them as successfully saved.",
+  ],
+  "API-101": [
+    "Retrieve provider candidates, procedure identifiers and the dynamic amount-field map from MedNext+. Clean document-header words from facility names and keep looking when a record is inactive or in the wrong location.",
+    "Resolve medicines by printed code or a bounded name/strength/generic/form/pack search. Keep candidate evidence and mark ambiguous matches for review rather than choosing an unsupported drug.",
+    "Normalize physiotherapy to timed units from invoice minutes, using three units for an unspecified standard session. Apply explicit therapy-code defaults where coding is absent, then ask MedNext+ to resolve the codes. Prefer the configured 2021 procedure tables over 2018.",
+  ],
+  "API-011": [
+    "Create each inpatient invoice with its own lines and diagnoses, while reusing the claim's batch and preserving partial successes. MedNext+ creates the incident; the upload does not invent one.",
+    "Sum inpatient totals by currency and use C-03's rates to set one AED expected claim amount on every inpatient invoice. If a foreign rate is missing, send zero with a manual-entry note; bill lines remain in their own currency.",
+    "Send approved quantity zero on every line. Record the creation user and Fee Max returned by MedNext+; no final settlement is performed.",
+    "Use service-specific procedure fallbacks and benefit-specific notes. Ayurveda medicines use ALT 0006; unmatched medicines can use PH 0001, while non-itemized services have a separate unlisted-service route. Keep fallback reasons visible for review.",
+  ],
+  "API-012": [
+    "Create each outpatient invoice with its own bills, service lines, diagnoses and notes under the existing batch; preserve returned identifiers and partial failures.",
+    "Keep original bill currency; this path does not run C-03. Send approved quantity zero on every line, and retain creation-user/Fee Max response evidence for the reviewer.",
+    "Keep dental, optical and alternative-medicine invoice notes aligned with the actual billed benefit. Use the configured 2021 procedure tables and medicine/unlisted-service fallbacks, with reasons retained; these are not final payment decisions.",
+  ],
   "API-002": [
     "Obtain a usable download link or content for each submitted document, reusing supplied content when available and avoiding duplicate requests for the same claim/document pair.",
     "Record missing or unavailable documents separately. A hard request failure, or listed/attempted documents with no retrievable file at all, produces failure information; partial missing files can proceed for later review.",
@@ -133,6 +164,7 @@ const actions = {
   ],
   "T-02": [
     "Reconcile extraction and optional English translation into text grouped by document identifier.",
+    "Recognize invoice identifiers in several European languages and distinguish provider role mailboxes from possible member email addresses.",
     "Carry the file manifest, extracted document facts and warnings with the same claim so downstream checks share the evidence.",
   ],
   "A-05": [
@@ -155,6 +187,7 @@ const actions = {
         "Use original bill/image evidence for printed identifiers and amounts, where provided.",
         "Distinguish the patient from doctors and payees.",
         "Distinguish the invoice number from unrelated identifiers.",
+        "Read diagnosis codes and signatures from the page image; cross-check amounts written in figures and words. Keep tax and stamp-duty rows separate and normalize the bill's number format.",
       ],
     },
     {
@@ -165,6 +198,7 @@ const actions = {
   ],
   "C-01": [
     "Normalize extracted claim fields, dates and payer information against the configured references.",
+    "Identify care categories from billed evidence: dental implants need dental context, home-exercise advice is not billed physiotherapy, and named Ayurvedic therapies/remedies can identify alternative medicine.",
     "Adopt supported facts into the carried claim and preserve source/conflict warnings; prepare the full card and treatment context for the member lookup.",
   ],
   "TEMP-01": [
@@ -192,16 +226,19 @@ const actions = {
     "Assess each real claim document for readability, type, cut-off content, stamps/signatures and genuine factual conflicts.",
     "Separate a value a person could correct from a genuinely unusable file. Duplicate copies and email logos are not additional defective claim documents.",
     "Record issues with evidence; this quality assessment is distinct from deciding which required documents are absent.",
+    "Reserve unusable-file findings for content that needs a replacement file. A readable document with a correctable value remains usable; spelling variations alone are not an identity conflict.",
   ],
   "A-08": [
     "Apply payer and policy document requirements to the services actually billed, not merely the member's chosen category.",
     "Check itemized bills and proof of payment per bill, applicable claim forms, and care-specific support such as prescriptions, discharge summaries, reports or referrals.",
     "Return present/missing requirements and evidence. Later deterministic rules reconcile these findings before deciding the review path.",
+    "A damaged page still proves whatever remains readable: a cut header does not erase itemized rows or a printed prescription. Match each pharmacy/optical bill to its own supporting prescription rather than sharing one across unrelated bills.",
   ],
   "R-02": [
     "Reconcile quality and completeness findings against the actual bill evidence, payer document matrix and permitted exceptions.",
     "Create specific, bill-scoped documentary rulings; discard demands for services that were not billed and retain missing-document notes.",
     "Separate issues needing human correction from documentation gaps that can continue as Not In Good Order. Configured test controls can force or bypass review.",
+    "Respect the payer matrix's claim-form waiver, use image evidence for signatures, and keep readable parts of damaged documents. Reconcile shared payments only when their amounts support the bills, and bind each prescription to the bill it supports.",
   ],
   "C-OPR": [
     "Assemble the human-review package: claim header, documents/view links, identity and payer evidence, financial/bank details, duplicate findings and document checklist.",
@@ -214,6 +251,7 @@ const actions = {
   "T-04": [
     "Apply permitted reviewer corrections to their claim fields or document evidence, keeping original material and attribution.",
     "Retain rejected/unapplied changes and unresolved items. Handle an explicit exit or a missing decision after a requested review as such—not as silent approval.",
+    "Normalize scoped field names and formats, ignore blank/null-like corrections rather than erasing existing facts, and enforce locked identity/provider/payment-currency fields. Digital-channel bank details remain locked; permitted email-channel bank corrections retain their history.",
   ],
   "C-02": [
     "Convert the returned benefit-document representation into a file the text-extraction service can accept.",
@@ -226,6 +264,7 @@ const actions = {
   "A-06": [
     "Extract stated benefit categories, limits, copays, deductibles, conditions, territory and submission terms, preserving the policy wording and currencies.",
     "Carry policy/member references through. Ambiguity stays explicit; missing benefit text yields an unavailable/unknown state, not invented limits or remaining balances.",
+    "Create one entry per named benefit and setting, including explicit exclusions, frequency, waiting periods, network and pre-approval terms. Keep inpatient/outpatient alternative medicine and individual dental, optical and maternity sub-benefits separate.",
   ],
   "R-03": [
     "Assess six areas: identity, policy dates, enrollment timing, geography, submission timing and reimbursement permission, with evidence for each.",
@@ -238,10 +277,11 @@ const actions = {
   "A-11": [
     "Assign every document to inpatient, outpatient, neither or mixed content based on actual admissions, care episodes and billed services.",
     "Keep clinical content even on a claim-form template, exclude duplicate copies from repeat coding, and do not infer inpatient care from cost or the declared claim type.",
+    "Treat documented day-theatre operations as inpatient episodes even without an overnight stay. Alternative-medicine programmes are inpatient only when there is evidence of a stay; repeated daily therapies alone remain outpatient.",
   ],
   "R-04": [
     "Use document assignments and deterministic overrides to build inpatient/outpatient text for the coding calls.",
-    "An individual document labeled BOTH is routed to inpatient in this implementation; separate inpatient and outpatient documents can still create two claim-level paths.",
+    "Split a BOTH document by page into inpatient and outpatient evidence when possible, including admission-linked bill continuations. When page markers or a usable split are missing, send the whole document to inpatient with a warning. Documented day-theatre operations can also override an outpatient classification.",
   ],
   "R-04B": [
     "Check whether both inpatient and outpatient channels are present. Route both to the paired coding path; otherwise continue to the single-channel splitter.",
@@ -259,6 +299,7 @@ const actions = {
   "A-13": [
     "Relate available coded services to the claim's actual benefit evidence and generate suggestion-only findings with attention notes.",
     "A complete NO_SUGGESTION result is permitted. Do not calculate final payment, invent remaining benefit balances or convert currencies.",
+    "Match each service to its own benefit and care setting, such as frames versus lenses or inpatient versus outpatient Ayurveda. Later prompt sections request provisional payable arithmetic and line decisions, with the submission cut-off considered first; earlier restrictive instructions remain visible in the source.",
   ],
   "R-07": [
     "Choose the batch route from the submission channel. Batch creation/reuse is performed by the following service step, not by this router.",
@@ -270,14 +311,18 @@ const actions = {
   "A-SEL": [
     "Select a real facility candidate per invoice using type, country/city, address, branch and name evidence.",
     "Reject a same-name provider in a different country. Return no match rather than inventing an identifier when the reference list lacks the facility.",
+    "Reject inactive/stopped records, a different UAE emirate or a different facility kind. A shared generic word is not a match; the bill's footer or stamp can establish its actual location.",
   ],
   "C-PROV": [
     "Apply the configured reimbursement-provider rules using the facility evidence, payer, treatment territory and reference table.",
     "Keep the billing reference distinct from a matched facility record, retain the resolution trace and flag cases without a permitted default.",
+    "Apply a final facility gate to both agent and scored candidates: active record, correct emirate and facility kind, and supported brand match. Prefer an unresolved facility to a wrong one.",
   ],
   "T-05": [
     "Build invoice groups and service/diagnosis data from the coded results and original bill facts, retaining patient, bill and admission associations.",
-    "Use each bill's own currency and amounts; no currency conversion is applied. Preserve uncoded/unallocated billed information as visible gaps and do not duplicate copied bills.",
+    "Use each bill's own currency and amounts at assembly. Preserve uncoded/unallocated billed information as visible gaps and do not duplicate copied bills. Later C-03/API-011 convert only the inpatient expected amount to AED, not these lines.",
+    "Reconcile printed rows, section totals, international tax/stamp-duty rows, discounts and rounding against the bill's net total. Apply adjustments only when printed figures reconcile; keep unexplained differences visible.",
+    "Bind coded lines to bill rows across languages and number formats; carry printed diagnosis evidence and scope diagnoses to each invoice's actual service. Optical invoices use refraction/eye evidence rather than unrelated cataract diagnoses; category selection follows billed lines.",
   ],
   "A-18": [
     "Propose explanation/attention notes from the supplied catalogue and claim evidence.",
@@ -289,6 +334,11 @@ const actions = {
   ],
   "C-10": [
     "Inspect which prepared invoice channels are present and select the first upload path. This node routes work; it does not itself create invoices in MedNext+.",
+  ],
+  "C-03": [
+    "Run only on the inpatient upload path. Read invoice currencies and the treatment date, falling back to the first available admission date; AED uses a rate of one.",
+    "Request a historical daily-average midpoint, then a spot rate; try the inverse currency pair if needed. For today/future dates use yesterday; when no quote exists, try up to three earlier days and record the date actually used. Authentication refusal stops further attempts.",
+    "Return rates and evidence to API-011 for estimatedCost in AED. On missing dates, credentials or quotes, retain an explanation and continue without inventing a rate. Although this node's warning says the amount is left empty, API-011 actually sends zero for missing foreign-currency rates, with a note asking the agent to enter the AED amount. Outpatient and bill-line amounts are not converted.",
   ],
   "C-12": [
     "Check whether outpatient invoices need uploading after the preceding path and return the appropriate route flag with the claim.",

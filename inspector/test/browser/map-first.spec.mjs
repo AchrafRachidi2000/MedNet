@@ -8,8 +8,8 @@ test("map is the wide default workspace with on-demand overlay details", async (
   await expect(
     page.getByRole("heading", { name: "Claim workflow" }),
   ).toBeVisible();
-  await expect(page.locator(".graph-node")).toHaveCount(87);
-  await expect(page.locator(".graph-edge")).toHaveCount(110);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
+  await expect(page.locator(".graph-edge")).toHaveCount(111);
   await expect(page.locator("#inspector")).toBeHidden();
   const before = await page.locator("#graph-viewport").boundingBox();
   expect(before.width).toBeGreaterThan(1400);
@@ -34,7 +34,7 @@ test("map is the wide default workspace with on-demand overlay details", async (
     .getByRole("textbox", { name: "Search nodes prompts fields or code" })
     .fill("A-08 - Completeness Check");
   await expect(page.locator(".graph-node.search-match")).toHaveCount(1);
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page.getByRole("button", { name: "Clear map search" }).click();
   const canvas = page.locator("#graph-viewport");
   const zoom = await page.locator("#zoom-value").textContent();
@@ -48,7 +48,7 @@ test("map is the wide default workspace with on-demand overlay details", async (
 test("map remains usable on a narrow screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#audience=technical");
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await expect(page.locator("#inspector")).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,

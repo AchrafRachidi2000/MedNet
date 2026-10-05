@@ -4,7 +4,7 @@ test("map, node detail, and map help meet automated accessibility checks", async
   page,
 }) => {
   await page.goto("/#audience=technical");
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   for (const surface of ["map", "node", "help"]) {
     if (surface === "node") await page.locator(".graph-node").first().click();
     if (surface === "help")

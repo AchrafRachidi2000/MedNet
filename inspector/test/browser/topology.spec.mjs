@@ -52,7 +52,7 @@ test("branch paths are labeled, selectable and navigable without hiding nodes", 
   await expect(
     page.locator(".stage-band, .graph-col-label, [data-scope]"),
   ).toHaveCount(0);
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   const label = page.locator(`.edge-label[data-edge="${route.id}"]`);
   // Pan the unlimited canvas to the route label; there is no native scrollbar
   // to automatically scroll an off-canvas element into view anymore.
@@ -74,13 +74,13 @@ test("branch paths are labeled, selectable and navigable without hiding nodes", 
     .locator(`#edge-description [data-select="${route.target}"]`)
     .click();
   await expect(page.locator("#inspector")).toContainText("IP Medical Coding");
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Go to start", exact: true }).click();
   await expect(
     page
       .locator(".graph-node")
-      .filter({ hasText: "Receive the submitted claim" }),
+      .filter({ hasText: "Claim Submission" }),
   ).toBeInViewport();
   expect(errors).toEqual([]);
 });

@@ -120,7 +120,7 @@ test("scenario setup is omitted from the catalog, phase and complete maps", asyn
   ).toHaveCount(0);
   await page.locator('[data-map-stage="all"]').click();
   await expect(page.locator(`[data-select="${harness.id}"]`)).toHaveCount(0);
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page
     .getByRole("combobox", { name: "Connection type" })
     .selectOption("control");

@@ -150,6 +150,10 @@ export function buildCatalog(raw) {
                             ? "Reconcile & verify"
                             : "Rules & transformation",
       ...a,
+      // Technical labels are source evidence, not editorial replacements.
+      // Keep the plain-English alias for explanations and existing searches.
+      title: d.name,
+      explanatoryTitle: a?.title || d.name,
       description: scrubText(d.description || ""),
       inputs: fields(d.input_schema?.schema),
       outputs: fields(d.output_schema?.schema),
@@ -280,6 +284,7 @@ export function buildCatalog(raw) {
       n.name,
       n.role,
       n.title,
+      n.explanatoryTitle,
       n.summary,
       n.description,
       JSON.stringify(n.inputs),

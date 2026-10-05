@@ -50,11 +50,14 @@ test("hosted artifact contains only approved assets and scrubbed snapshot endpoi
       "api/business.json",
     ].sort(),
   );
-  assert.equal(catalog.nodes.length, 87);
+  assert.equal(catalog.nodes.length, 88);
   assert.equal(business.catalog.nodes.length, 28);
   assert.equal(catalog.hosted, true);
   assert.equal(catalog.sourceDocumentsAvailable, false);
   assert.equal(business.catalog.sourceDocumentsAvailable, false);
+  assert.ok(
+    !files.some((file) => /local-chat|registrations|chat-auth/.test(file)),
+  );
   assert.ok(!catalog.nodes.some((n) => n.name.startsWith("TEST-00 ")));
 });
 test("hosted output preserves routes and security headers without a server function", () => {

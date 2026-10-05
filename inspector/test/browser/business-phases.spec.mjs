@@ -92,7 +92,7 @@ test("technical cards explain every node and selection preserves the exact camer
   page,
 }) => {
   await page.goto("/#audience=technical");
-  await expect(page.locator(".graph-node .node-description")).toHaveCount(87);
+  await expect(page.locator(".graph-node .node-description")).toHaveCount(88);
   const capture = () =>
     page.locator("#graph-viewport").evaluate((el) => ({
       left: Number(el.dataset.cameraX),

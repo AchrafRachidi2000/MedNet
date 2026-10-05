@@ -22,7 +22,7 @@ export async function buildSnapshot(raw, { hosted = false } = {}) {
   businessCatalog.sourceDocumentsAvailable = !hosted;
   if (hosted)
     catalog.privacy =
-      "Confidential credential-scrubbed configuration snapshot. Sign-in required. Original source documents are not deployed. No production services are called.";
+      "Credential-scrubbed configuration snapshot. Original source documents are not deployed. No production services are called.";
   return {
     catalog,
     layout: {

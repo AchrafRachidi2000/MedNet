@@ -419,8 +419,10 @@ export const businessDetails = {
     ],
     checks: [
       "Assess legibility, cut-off or blank pages, whether the document is the declared type, and genuinely conflicting identity or financial facts. Different spellings of the same name, duplicate copies and harmless formatting differences are not new defects.",
+      "Keep readable evidence from a partly cut or damaged document: a missing header does not erase readable bill rows, payment text or optical prescription values. Distinguish a value a reviewer can correct from a document that genuinely needs replacement.",
       "Check each bill for an itemized invoice and acceptable proof of payment. Payment evidence must relate to that bill; the payer's stricter receipt rules and configured threshold handling can change what is accepted.",
       "Apply the required-document matrix to billed care: for example, admission evidence calls for a discharge summary, dispensed medication may require a prescription, physiotherapy may require a specialist referral, and billed diagnostics may require investigation reports. Do not demand a document for care that was not billed.",
+      "Match each pharmacy or optical bill to its own applicable prescription using references, purchased items and dates; one prescription does not automatically satisfy unrelated bills. One payment can cover several bills only when the evidence and amounts support that association.",
       "Check the claim-form rule and any required signatures/stamps across all pages, plus applicable bank-transfer information. A forwarding email containing identifiers alone is not automatically the member's claim statement.",
       "Separate missing-document notes from a resolvable problem needing a person, such as a card/identity issue or an unclear value. Record bill-specific documentary rulings and decide whether the human-review branch is needed.",
     ],
@@ -569,6 +571,7 @@ export const businessDetails = {
     ],
     checks: [
       "Structure the benefit wording without calculating entitlement: keep stated limits, conditions and currencies, and mark ambiguous clauses or unavailable benefits as unknown.",
+      "Keep one entry per benefit and care setting: inpatient/outpatient alternative medicine, dental service types, optical frames/lenses and maternity visits/delivery have separate clauses where the policy distinguishes them. Carry explicit exclusions, waiting periods, frequency and pre-approval terms; silence is not cover.",
       "Compare patient identity with the member record. Genuine conflicts in date of birth or Emirates ID matter; transliteration, abbreviated names or name order alone do not prove a different person.",
       "Check policy dates and enrollment against treatment dates, including the documented five-day enrollment tolerance and payer card-delay conventions.",
       "Check treatment geography and emergency evidence, the submission interval against the applicable payer/policy window, and whether reimbursement is described as permitted. Missing evidence makes a finding indeterminate, not a pass.",
@@ -612,6 +615,7 @@ export const businessDetails = {
     ],
     checks: [
       "Look for actual admissions and their date/patient boundaries. Group discharge summaries, inpatient bills and related care into the admission; assign separate consultations, pharmacy, therapy and other non-admission visits to outpatient care.",
+      "A day-theatre operation counts as an inpatient episode even without an overnight stay. An Ayurveda programme needs evidence of a stay, such as room charges or admission/discharge dates; daily sessions or the word programme alone do not make it inpatient.",
       "Do not classify care as inpatient just because it is expensive or the member selected that label. Keep clinical content from physician-completed forms even when the template is a claim form.",
       "Avoid coding duplicate copies twice. Pure payment slips, bank/identity documents and non-clinical attachments are not themselves material for medical coding.",
       "Record available emergency, authorization, network, provider restriction and other attention evidence. Missing authorization or network confirmation is an assessment note, not an automatic denial.",
@@ -632,7 +636,7 @@ export const businessDetails = {
       "Neither care type → the clinical-result checkpoint.",
     ],
     caveats: [
-      "A single document labeled as containing both types is routed to the inpatient coder by the supplied code. A claim with separate inpatient and outpatient documents can still use both paths.",
+      "Mixed documents are now split by page into both coding paths when the evidence allows. Without usable page markers or a reliable split, the entire mixed document falls back to inpatient with a warning. Some classifier wording still describes the older fallback-only behavior.",
     ],
   },
   inpatient: {
@@ -703,6 +707,7 @@ export const businessDetails = {
     checks: [
       "Merge the two care channels when both exist, or normalize the single result. Preserve invoice groups, patients, billed lines and unresolved conflicts instead of silently discarding them.",
       "Relate coded/billed services to the available benefit evidence. Keep unsupported or ambiguous benefit conclusions explicit.",
+      "Use the clause for the specific service and setting, not a broad heading: dental root canals, optical frames/lenses and inpatient/outpatient alternative medicine are assessed separately. Later instructions request provisional payable arithmetic after stated copays/caps and highlight an exceeded submission window first; this is not final approval.",
       "Collect concrete attention items such as inconsistent evidence, multiple patients, unfulfilled payer requirements or uncertain payer identification, with their reasons.",
       "Produce a suggestion only when the evidence supports one. A complete result may legitimately say that no suggestion can be made.",
     ],
@@ -813,6 +818,7 @@ export const businessDetails = {
     checks: [
       "Read the facility and relevant treatment/benefit terms from the evidence; keep the facility licence separate from a practitioner's personal licence.",
       "Compare reference candidates per bill using facility type, treatment country/city, address, branch and official name. A similarly named clinic in another country is not a match.",
+      "Use footer and stamp details as location evidence. Reject inactive candidates, wrong UAE emirates and the wrong facility kind; a shared generic name alone is not enough to identify the treating facility.",
       "Allow no facility match when the provider is not in the returned reference list, especially for treatment abroad. Never invent a facility identifier to fill the gap.",
       "Apply the configured reimbursement billing rules to the payer, territory and applicable facility facts. Retain the selected billing reference, available facility record, territory and the reason for the selection; flag cases where the rules provide no permitted default.",
     ],
@@ -852,8 +858,10 @@ export const businessDetails = {
     ],
     checks: [
       "Group services by the correct bill, patient and care episode. Preserve original bill references and avoid treating duplicate copies as separate charges.",
+      "Consolidate supported bills for one inpatient admission while preserving the original bill references. Reconcile international taxes and stamp duty separately; allocate printed discounts, returns or rounding only when the evidence explains the bill total. Payments are not discounts.",
       "Separate inpatient-stay services from outpatient care outside the admission, retaining each bill's own currency and amounts. Identify uncoded or unallocated billed items as gaps rather than silently losing them.",
       "Build invoice details with applicable providers, diagnoses, services and dates. Keep claimed values distinct from amounts approved for payment.",
+      "Reconcile printed diagnosis codes with coding results and scope them to the invoice's actual services, including optical/refraction evidence. Record unlisted medication or procedure fallbacks instead of presenting them as exact reference matches.",
       "Propose explanatory notes, then validate them against the actual claim evidence and the predefined catalogue. Documentary rulings determine missing-document notes and their bill/claim scope; unsupported proposed notes are rejected.",
       "Keep documentation status separate from other attention findings. Check that coded content produced at least one invoice object, and collect assembly failures before upload.",
     ],
@@ -872,7 +880,7 @@ export const businessDetails = {
       "Invoice assembly failure or missing required invoice objects → shared exit handling.",
     ],
     caveats: [
-      "The supplied implementation does not convert currencies. In Good Order/Not In Good Order is a documentation status—not approval, denial or a computed payment amount.",
+      "Invoice assembly preserves bill currencies. The later inpatient upload converts only the expected claim amount to AED. In Good Order/Not In Good Order is a documentation status—not approval, denial or a computed payment amount.",
     ],
   },
   upload: {
@@ -880,17 +888,28 @@ export const businessDetails = {
       "Create the applicable inpatient and outpatient invoice records in MedNext+ and keep a separate result for each attempted invoice.",
     inputs: [
       [
+        "Information for the inpatient AED estimate",
+        "The inpatient invoices' currencies, claim treatment date (or the first admission date), and configured OANDA authorization. Credential values are never displayed.",
+      ],
+      [
         "Prepared invoice packages",
         "Claim/batch/member references, providers, dates, diagnoses, coded service lines, amounts, currencies and verified notes for each inpatient/outpatient invoice.",
       ],
     ],
     checks: [
       "Choose the upload route from the invoice channels actually present. Upload inpatient invoices where applicable, then outpatient invoices where applicable.",
+      "For inpatient invoices only, retrieve OANDA historical rates and convert the expected claim amount to AED. Use a daily average, then spot/inverse quotes if needed; today/future dates use yesterday, and missing quotes can use up to three earlier days. Record the actual rate date. Keep bill lines and outpatient amounts in their original currencies.",
+      "If a foreign-currency rate is unavailable, the upload sends an expected amount of zero with a note asking the agent to enter the AED amount; this alone does not stop invoice creation. Earlier rate-step wording says empty, but zero is the implemented upload fallback. The expected amount is not an approved payment.",
+      "Send approved quantity as zero on every invoice line, leaving approval to the agent. Use the configured procedure-table and medicine fallbacks, keep unmatched items visible, and retain returned Fee Max evidence rather than calculating the tariff locally.",
       "For each invoice, retain the returned invoice number and service success/failure information; do not describe a partial upload as complete success.",
       "Combine the two care-channel results and recover returned invoice numbers from successful per-invoice results if the combined list lost them.",
       "Inspect upload failures and configured required results before final claim-status synchronization.",
     ],
     outputs: [
+      [
+        "Inpatient exchange-rate evidence",
+        "Per-currency OANDA rate, actual date and basis, request outcome, and any missing-rate warning; an AED expected amount when conversion succeeds.",
+      ],
       [
         "Created invoice references",
         "The invoice numbers actually returned by MedNext+, separated from unsuccessful attempts.",
@@ -959,7 +978,7 @@ export const businessDetails = {
     checks: [
       "Collect the claim identifiers from the supplied exit package and available context; preserve partial results instead of assuming nothing was done.",
       "Attempt to synchronize an exception outcome to the submission system and retain the result of that attempt.",
-      "Write a durable failure/exit audit event with the actual reason and evidence, retaining failures of the notification/audit work as well.",
+      "Attempt to write a failure/exit audit event with the actual reason and evidence, retaining failures of the notification/audit work as well. This export does not prove the external audit store's durability.",
     ],
     outputs: [
       [

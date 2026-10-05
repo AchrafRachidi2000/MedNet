@@ -412,6 +412,8 @@ function renderInspector() {
     return;
   }
   host.innerHTML = `<div class="inspector-top"><span class="eyebrow">NODE INSPECTOR</span><div>${state.history.length ? `<button class="icon-button" data-action="back" aria-label="Previous inspected node">${icon("back")}</button>` : ""}<button class="button inspector-expand" data-action="expand-inspector" aria-pressed="${state.inspectorExpanded}" aria-label="${state.inspectorExpanded ? "Restore inspector size" : "Expand node inspector"}">${icon("expand")}<span>${state.inspectorExpanded ? "Restore" : "Expand"}</span></button><button class="icon-button" data-action="copy-link" aria-label="Copy link to this node">${icon("link")}</button><button class="icon-button" data-action="close-inspector" aria-label="Close node inspector">${icon("close")}</button></div></div><div class="inspector-title"><div class="inspector-label"><span class="node-code">${esc(nodeCode(n))}</span>${badge(n)}</div><h2>${esc(n.title)}</h2><div class="source-name">${esc(n.name)}</div><p>${esc(stageOf(n.stage)?.name || "Unassigned")}</p></div><div class="inspector-content" aria-label="Node explanation">${technicalExplanation(n)}</div>`;
+  // The heading uses the exported name; keep the plain-English alias below it.
+  host.querySelector(".source-name").textContent = n.explanatoryTitle || n.summary;
   initSourceSections(n);
   initInspectorResize(host);
 }

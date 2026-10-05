@@ -29,7 +29,7 @@ test("business steps account for all technical work without invented paths", () 
       assert.ok(!owner.has(id));
       owner.set(id, node.id);
     }
-  assert.equal(owner.size, 88);
+  assert.equal(owner.size, 89);
   const mapped = [];
   for (const edge of business.edges)
     for (const id of edge.technicalEdgeIds) {

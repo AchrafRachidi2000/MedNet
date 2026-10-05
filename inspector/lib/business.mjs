@@ -256,7 +256,7 @@ const definitions = [
     "decision",
     "Upload the applicable invoices",
     "Upload inpatient and/or outpatient invoices as applicable, combine the upload results and check the outcome.",
-    ["C-10", "C-12", "API-011", "API-012", "C-04", "EXIT-10"],
+    ["C-10", "C-03", "C-12", "API-011", "API-012", "C-04", "EXIT-10"],
     "Prepared invoices",
     "Combined upload result, or an exit outcome",
   ],

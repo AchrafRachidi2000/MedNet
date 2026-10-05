@@ -28,7 +28,7 @@ test("inspector is narrower and expands into a full-height reader without losing
   expect((await inspector.boundingBox()).width).toBe(normal.width);
   await page.keyboard.press("Escape");
   await expect(inspector).toBeHidden();
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
 });
 
 for (const audience of ["technical", "business"]) {

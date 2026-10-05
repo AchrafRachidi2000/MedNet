@@ -68,7 +68,7 @@ for (const via of ["connected card", "arrow", "inspector link"]) {
       "From Receive the claim",
     );
     await expect(page.locator(".phase-arrival")).toContainText(
-      "Check the intake result → Handle shared exits",
+      "EXIT-02 - Intake Checkpoint → EXIT-01 - Exit Rail",
     );
     expect(await highlighted(page)).toEqual([intakeExitEdge]);
     await expect(page.locator(".graph-node.arrival-node")).toHaveCount(2);

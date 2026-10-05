@@ -4,6 +4,7 @@
 /*.docx
 /analysis/
 /tmp/
+/outputs/
 .env
 .env.*
 !.env.example

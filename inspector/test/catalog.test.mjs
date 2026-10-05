@@ -9,14 +9,14 @@ const raw = await readFile(
 const original = JSON.parse(raw),
   catalog = buildCatalog(raw);
 test("catalog accounts for the complete supplied top-level graph", () => {
-  assert.equal(catalog.nodes.length, 88);
-  assert.equal(catalog.edges.length, 111);
+  assert.equal(catalog.nodes.length, 89);
+  assert.equal(catalog.edges.length, 112);
   assert.equal(catalog.stats.agents, 16);
-  assert.equal(catalog.stats.inputs, 353);
-  assert.equal(catalog.stats.outputs, 312);
-  assert.equal(catalog.stats.mappings, 330);
+  assert.equal(catalog.stats.inputs, 355);
+  assert.equal(catalog.stats.outputs, 314);
+  assert.equal(catalog.stats.mappings, 331);
   assert.equal(catalog.stats.acyclic, true);
-  assert.equal(new Set(catalog.nodes.map((n) => n.id)).size, 88);
+  assert.equal(new Set(catalog.nodes.map((n) => n.id)).size, 89);
   for (const n of catalog.nodes) {
     assert.ok(n.stage, n.name);
     assert.ok(n.summary, n.name);
@@ -24,6 +24,19 @@ test("catalog accounts for the complete supplied top-level graph", () => {
     assert.ok(n.order >= 0);
   }
 });
+test("technical titles preserve exact source names and keep explanatory aliases searchable", () => {
+  for (const n of catalog.nodes) {
+    const source = original.nodes.find((s) => s.id === n.id);
+    assert.equal(n.title, source.data.name);
+    assert.equal(n.name, source.data.name);
+    assert.ok(n.explanatoryTitle);
+    assert.ok(n.searchText.includes(n.explanatoryTitle.toLowerCase()));
+  }
+  const splitter = catalog.nodes.find((n) => n.name.startsWith("C-15"));
+  assert.equal(splitter.title, "C-15 - Single Splitter");
+  assert.equal(splitter.explanatoryTitle, "Route a single coding channel");
+});
+
 test("every control connection keeps its route and endpoints", () => {
   for (const e of catalog.edges) {
     assert.ok(catalog.nodes.some((n) => n.id === e.source));

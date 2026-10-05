@@ -15,7 +15,7 @@ test("map node details preserve exact prompts, nested contracts and field tracin
   await expect(
     page.getByRole("heading", { name: "Claim workflow", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await expect(page.locator("#inspector")).toContainText(
     "A-08 - Completeness Check",
   );
@@ -60,11 +60,11 @@ test("global search finds hidden prompt and code content", async ({ page }) => {
   await page
     .getByRole("textbox", { name: "Search nodes prompts fields or code" })
     .fill("FINAL AUTHORITY");
-  await expect(page.locator(".graph-node.search-match")).not.toHaveCount(87);
+  await expect(page.locator(".graph-node.search-match")).not.toHaveCount(88);
   await expect(page.locator(".graph-node.search-match")).not.toHaveCount(0);
   await page.getByRole("button", { name: "Clear map search" }).click();
   await page.keyboard.press("Escape");
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page
     .getByRole("textbox", { name: "Search nodes prompts fields or code" })
     .fill("R-03 - Validate Policy");
@@ -101,22 +101,22 @@ test("map supports process graph, data lineage, zoom and all-node coverage", asy
   await expect(
     page.getByRole("heading", { name: "Claim workflow", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page
     .getByRole("combobox", { name: "Connection type" })
     .selectOption("data");
-  await expect(page.locator(".graph-node")).toHaveCount(87);
-  await expect(page.locator(".graph-edge")).toHaveCount(234);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
+  await expect(page.locator(".graph-edge")).toHaveCount(233);
   await page.getByRole("button", { name: "Fit map to view" }).click();
   await page.screenshot({
     path: "test-results/lineage-map.png",
     fullPage: false,
   });
-  await expect(page.locator(".graph-node")).toHaveCount(87);
+  await expect(page.locator(".graph-node")).toHaveCount(88);
   await page
     .getByRole("combobox", { name: "Connection type" })
     .selectOption("control");
-  await expect(page.locator(".graph-edge")).toHaveCount(110);
+  await expect(page.locator(".graph-edge")).toHaveCount(111);
   await page.locator(".graph-edge").first().dispatchEvent("click");
   await expect(page.locator("#inspector")).toBeVisible();
   expect(errors).toEqual([]);
@@ -158,7 +158,7 @@ test("removed views resolve to the map with no alternate navigation", async ({
 }) => {
   for (const view of ["directory", "fields", "sources"]) {
     await page.goto("/#view=" + view);
-    await expect(page.locator(".graph-node")).toHaveCount(87);
+    await expect(page.locator(".graph-node")).toHaveCount(88);
     await expect(page.locator(".sidebar, [data-view]")).toHaveCount(0);
     await expect(page).toHaveURL(/audience=technical/);
   }
