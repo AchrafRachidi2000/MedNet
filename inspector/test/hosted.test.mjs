@@ -4,6 +4,9 @@ import { readFile, readdir } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
+import { buildCatalog } from "../lib/catalog.mjs";
+import { omitScenarioHarness } from "../lib/phases.mjs";
 
 const root = new URL("../", import.meta.url);
 let catalog, business, config;
@@ -75,6 +78,52 @@ test("hosted output preserves routes and security headers without a server funct
       ),
     );
   assert.equal(config.routes.at(-1).status, 404);
+});
+
+test("built graphs and node evidence stay synchronized with the current source file", async () => {
+  const raw = await readFile(
+    new URL("../../mednetstructure.json", import.meta.url),
+    "utf8",
+  );
+  const hash = createHash("sha256").update(raw).digest("hex");
+  const expected = omitScenarioHarness(buildCatalog(raw));
+  assert.equal(catalog.sourceHash, hash);
+  assert.equal(business.catalog.sourceHash, hash);
+  assert.deepEqual(catalog.edges, expected.edges);
+  assert.deepEqual(catalog.mappings, expected.mappings);
+  assert.deepEqual(
+    catalog.nodes.map((n) => n.id),
+    expected.nodes.map((n) => n.id),
+  );
+  for (const actual of catalog.nodes) {
+    const source = expected.nodes.find((n) => n.id === actual.id);
+    for (const key of [
+      "name",
+      "title",
+      "process",
+      "inputs",
+      "outputs",
+      "routes",
+      "settings",
+      "configuration",
+    ])
+      assert.deepEqual(actual[key], source[key], `${actual.name}: ${key}`);
+  }
+  const layout = JSON.parse(
+    await readFile(
+      new URL(".vercel/output/static/api/layout.json", root),
+      "utf8",
+    ),
+  );
+  for (const mode of ["control", "data"])
+    assert.deepEqual(
+      new Set(layout[mode].nodes.map((n) => n.id)),
+      new Set(catalog.nodes.map((n) => n.id)),
+    );
+  assert.deepEqual(
+    new Set(business.layout.nodes.map((n) => n.id)),
+    new Set(business.catalog.nodes.map((n) => n.id)),
+  );
 });
 test("hosted snapshot contains no source credential defaults or set-values", async () => {
   const source = JSON.parse(

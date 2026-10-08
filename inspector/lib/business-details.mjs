@@ -165,6 +165,7 @@ export const businessDetails = {
     checks: [
       "Translate the selected documents into English. Copy already-English documents unchanged; a document absent from both plan lists is treated as needing translation.",
       "Preserve names, card/policy/invoice numbers, dates, quantities, amounts, currency codes and medical codes. Do not convert currencies or round figures.",
+      "Preserve table columns and row order, including right-to-left bills. Translate a colour, model, lens index or medicine-strength header as that attribute, never as money; cross-check all translated figures against the original.",
       "Keep document and page boundaries. Mark an uncertain or illegible segment as untranslated instead of inventing its meaning or a missing number.",
     ],
     outputs: [
@@ -200,6 +201,7 @@ export const businessDetails = {
     checks: [
       "Reconcile original and translated results into text grouped by document; keep the claim reference and document associations.",
       "Carry available document facts and extraction warnings forward rather than replacing the whole claim with an isolated text result.",
+      "Do not discard files as duplicate copies merely because OCR returned the same error for both. Later agents can read the original page images even when text extraction failed.",
       "Record that extraction completed for this claim. Recording completion is an audit event, not confirmation that every required document is present.",
     ],
     outputs: [
@@ -239,9 +241,12 @@ export const businessDetails = {
     checks: [
       "Read the full member card and patient details from the evidence. Keep patient identity separate from the doctor, bank beneficiary and email sender. Do not infer a card number from an email address.",
       "Read policy/payer clues and normalize them against the configured reference information. Preserve where each value came from and any conflicting readings.",
+      "Read bill rows under their actual headers, check rows plus tax minus discounts against the total, and use payment evidence or amounts in words to resolve ambiguous figures. Keep unresolved readings visible rather than forcing the amounts to balance.",
+      "Identify clinical images and stated report conclusions from the original pages. Preserve tooth notation and medicine details; do not mistake a provider licence or registration number for a billed procedure code.",
       "Read each bill's own number, date, provider/facility, line descriptions, quantities, amounts and currency; also read treatment/admission dates, payment evidence and any stated bank details. Do not substitute a tax number or a payment-only receipt number for the bill number.",
       "Find the full 18-digit member card in the supplied fields or documents. Ask MedNext+ for that card on the treatment date. If no usable treatment date is available, use document care dates where possible, otherwise the submission receipt date and record the fallback warning.",
       "Check that the returned record is for the requested card, read its eligibility status on that date, and inspect the payer's sanction indicator. A missing card, no matching record, or a returned different card is an identity issue to resolve, not proof of medical-document incompleteness.",
+      "Look up up to two other same-payer member cards printed in the documents and retain the results separately. The later document-check decision uses these results if the bills belong to a different patient; this lookup alone does not switch the claim's card.",
       "Fill missing policy, payer and member details from the returned record. For the pilot-scope check, prefer its payer code over the inferred profile or submitted code. Check the explicit MetLife/Dubai Insurance exclusion lists and the Dubaicare inbox flag; a brand name alone is not the exclusion rule.",
     ],
     outputs: [
@@ -420,6 +425,9 @@ export const businessDetails = {
     checks: [
       "Assess legibility, cut-off or blank pages, whether the document is the declared type, and genuinely conflicting identity or financial facts. Different spellings of the same name, duplicate copies and harmless formatting differences are not new defects.",
       "Keep readable evidence from a partly cut or damaged document: a missing header does not erase readable bill rows, payment text or optical prescription values. Distinguish a value a reviewer can correct from a document that genuinely needs replacement.",
+      "Inspect clinical images even when they have no extracted text. A usable dental X-ray or ECG can satisfy the applicable image requirement; it is not a missing document because OCR was empty. A required written report remains distinct from the image itself.",
+      "When bills belong to a different patient, use their printed card only if the returned MedNext+ evidence satisfies patient identity, policy and safety checks. Otherwise ask for the correct card. Keep that patient's documents on file while the identity question is resolved.",
+      "Ask a reviewer to read a critical value only when the page-image reading is genuinely uncertain, below 0.6 confidence, and no other claim evidence supplies it. Do not raise a new-file request solely because OCR failed when the image was successfully read.",
       "Check each bill for an itemized invoice and acceptable proof of payment. Payment evidence must relate to that bill; the payer's stricter receipt rules and configured threshold handling can change what is accepted.",
       "Apply the required-document matrix to billed care: for example, admission evidence calls for a discharge summary, dispensed medication may require a prescription, physiotherapy may require a specialist referral, and billed diagnostics may require investigation reports. Do not demand a document for care that was not billed.",
       "Match each pharmacy or optical bill to its own applicable prescription using references, purchased items and dates; one prescription does not automatically satisfy unrelated bills. One payment can cover several bills only when the evidence and amounts support that association.",
@@ -460,6 +468,7 @@ export const businessDetails = {
     ],
     checks: [
       "Ask the reviewer to choose Proceed, Modify or Exit and identify themselves.",
+      "Use plain-language questions such as card number and bill number. Show identified clinical images as present and combine related patient-identity differences into one card question, instead of asking for every mismatched field separately.",
       "For Modify, collect the explanatory note and each correction as a named field, new value and affected document or whole claim. For Exit, require a reason: unusable document, missing required document or other.",
       "Interpret explicit free-text corrections, retain escalations and list issues the reviewer did not address. Silence is not confirmation, and no additional values may be invented.",
     ],
@@ -498,6 +507,7 @@ export const businessDetails = {
       "Apply allowed changes to the correct claim field or document. Preserve the original evidence, record the reviewer correction, and keep unapplied or disallowed edits visible.",
       "Do not invent a Proceed decision if the human-review branch ran but no decision arrived; handle that as the review timeout case.",
       "Revalidate the member when corrected member/policy/treatment-date information requires it; reuse the applicable previous result when no revalidation is needed.",
+      "Also revalidate when the document-check rules adopted a confirmed alternate patient card without a human pause. Update the member number to follow that card and retain the original references so invoices are not assigned to the previous card holder.",
       "Refresh access after the possible review wait and reconcile corrected information with the registered claim. If an earlier registration did not succeed, use the applicable post-review registration path.",
       "Collect remaining failures before policy-reference retrieval; retain documentary gaps and attention notes as part of the claim.",
     ],
@@ -620,6 +630,7 @@ export const businessDetails = {
       "Avoid coding duplicate copies twice. Pure payment slips, bank/identity documents and non-clinical attachments are not themselves material for medical coding.",
       "Record available emergency, authorization, network, provider restriction and other attention evidence. Missing authorization or network confirmation is an assessment note, not an automatic denial.",
       "Prepare the text for the relevant coding path: inpatient only, outpatient only, both separate paths, or no coding channel.",
+      "Recover billed evidence from page-image readings when OCR failed. Split a scan containing admission bills and separately billed visits outside the stay into inpatient and outpatient pages, even if the initial classification labelled the whole scan inpatient, when dates and page boundaries support the split.",
     ],
     outputs: [
       [
@@ -817,6 +828,7 @@ export const businessDetails = {
     ],
     checks: [
       "Read the facility and relevant treatment/benefit terms from the evidence; keep the facility licence separate from a practitioner's personal licence.",
+      "Resolve service and medicine references alongside provider information. Search vaccine products under pharmacy entries, try supported brand/strength/ingredient variants for medicines, and retain dental crosswalk candidates and separately billed registration fees for invoice preparation.",
       "Compare reference candidates per bill using facility type, treatment country/city, address, branch and official name. A similarly named clinic in another country is not a match.",
       "Use footer and stamp details as location evidence. Reject inactive candidates, wrong UAE emirates and the wrong facility kind; a shared generic name alone is not enough to identify the treating facility.",
       "Allow no facility match when the provider is not in the returned reference list, especially for treatment abroad. Never invent a facility identifier to fill the gap.",
@@ -861,8 +873,12 @@ export const businessDetails = {
       "Consolidate supported bills for one inpatient admission while preserving the original bill references. Reconcile international taxes and stamp duty separately; allocate printed discounts, returns or rounding only when the evidence explains the bill total. Payments are not discounts.",
       "Separate inpatient-stay services from outpatient care outside the admission, retaining each bill's own currency and amounts. Identify uncoded or unallocated billed items as gaps rather than silently losing them.",
       "Build invoice details with applicable providers, diagnoses, services and dates. Keep claimed values distinct from amounts approved for payment.",
+      "Check each invoice's amounts, tax and diagnosis evidence against its own bill and supporting documents. Correct supported wrong-column or ambiguous-digit readings without inventing amounts, and show unresolved arithmetic gaps in an invoice-review note.",
+      "Keep diagnoses with the care they describe and distinguish a treating clinician's diagnosis from incidental report findings. If no diagnosis is available, request a diagnosis/medical report for that bill; if the report is already on file but not coded, flag it for the agent instead of asking the member to resend it.",
+      "For dental crosswalks, retain the printed code and tooth evidence, choose root-canal codes using the supported tooth type, and distinguish the first X-ray image from additional images while preserving the billed total.",
       "Reconcile printed diagnosis codes with coding results and scope them to the invoice's actual services, including optical/refraction evidence. Record unlisted medication or procedure fallbacks instead of presenting them as exact reference matches.",
       "Propose explanatory notes, then validate them against the actual claim evidence and the predefined catalogue. Documentary rulings determine missing-document notes and their bill/claim scope; unsupported proposed notes are rejected.",
+      "Place registration-fee and other non-medical-item notes only on the bill containing the charge, with different notes for thermometers and linen/toiletries. The configured frame rule also flags frames when no ToB grants them, including an unavailable ToB, for the agent to confirm against the schedule.",
       "Keep documentation status separate from other attention findings. Check that coded content produced at least one invoice object, and collect assembly failures before upload.",
     ],
     outputs: [
@@ -901,6 +917,8 @@ export const businessDetails = {
       "For inpatient invoices only, retrieve OANDA historical rates and convert the expected claim amount to AED. Use a daily average, then spot/inverse quotes if needed; today/future dates use yesterday, and missing quotes can use up to three earlier days. Record the actual rate date. Keep bill lines and outpatient amounts in their original currencies.",
       "If a foreign-currency rate is unavailable, the upload sends an expected amount of zero with a note asking the agent to enter the AED amount; this alone does not stop invoice creation. Earlier rate-step wording says empty, but zero is the implemented upload fallback. The expected amount is not an approved payment.",
       "Send approved quantity as zero on every invoice line, leaving approval to the agent. Use the configured procedure-table and medicine fallbacks, keep unmatched items visible, and retain returned Fee Max evidence rather than calculating the tariff locally.",
+      "Use the configured 2021 CPT/HCPCS tables. Try the ICD21 diagnosis-table identifier with an ICD-10 fallback on qualifying refusals; the source says ICD21 still needs confirmation. Keep the actual attempts and returned errors visible.",
+      "Include patient/card corrections, bill-specific review findings, treatment-course context and possible-duplicate reasons in the invoice notes. Creating an invoice does not mean the agent accepted these suggestions.",
       "For each invoice, retain the returned invoice number and service success/failure information; do not describe a partial upload as complete success.",
       "Combine the two care-channel results and recover returned invoice numbers from successful per-invoice results if the combined list lost them.",
       "Inspect upload failures and configured required results before final claim-status synchronization.",
@@ -941,8 +959,9 @@ export const businessDetails = {
       ],
     ],
     checks: [
-      "Collect invoice numbers from the combined result or successful individual upload results.",
+      "Collect invoice numbers from the combined result or successful individual upload results, sending each number only once. Use the MEMS claim number when supplied, otherwise the UCRN.",
       "Send the claim-status synchronization request to the submission system with the claim identifiers, invoice references and update timestamp.",
+      "Tie duplicate-request protection to the actual batch and invoice set. Retain the outcome of any supported retry for an idempotency conflict or batch-number server error; a retry is not proof that MEMS accepted the update.",
       "Record the response, whether synchronization succeeded, and any failure; write the final synchronization audit event.",
     ],
     outputs: [

@@ -108,7 +108,7 @@ const entries = [
     "A-04",
     "documents",
     "Translate selected content to English",
-    "Translate selected non-English content while preserving identifiers, amounts and document boundaries.",
+    "Translate selected content while preserving identifiers, amounts, table columns and document boundaries; keep item attributes distinct from prices.",
   ],
   [
     "T-02",
@@ -126,7 +126,7 @@ const entries = [
     "A-05",
     "identity",
     "Read member, payer and document facts",
-    "Lift claim facts and page evidence from the submitted materials, with provenance and conflicts. It does not itself validate membership in MedNext+.",
+    "Read claim facts from text and page images, reconcile bill arithmetic and retain sources, conflicts and unreadable values. Membership is checked separately in MedNext+.",
   ],
   [
     "C-01",
@@ -138,7 +138,7 @@ const entries = [
     "API-003",
     "identity",
     "Validate the member card",
-    "Request the authoritative member record using the full card number and treatment date. Distinguish missing identity from coverage findings.",
+    "Look up the member card and treatment date in MedNext+; separately check supported alternate cards printed on the documents for later patient-identity resolution.",
   ],
   [
     "TEMP-01",
@@ -210,19 +210,19 @@ const entries = [
     "A-07",
     "review",
     "Assess document usability",
-    "Assess quality and readability. Document quality and the presence of required document types are separate checks.",
+    "Assess readable text and original page images, including X-rays with no OCR text. Keep document usability separate from missing-document requirements.",
   ],
   [
     "A-08",
     "review",
     "Assess required documents",
-    "Apply payer and billed-service requirements to identify present and missing documents. R-02 performs additional checks afterward.",
+    "Check payer and billed-service document requirements against text and images already on file, including dental evidence. R-02 reconciles the findings afterward.",
   ],
   [
     "R-02",
     "review",
     "Verify documentation and decide review needs",
-    "Apply deterministic documentary checks, retain bill-specific rulings and decide whether a resolvable blocker needs human review. Missing documents can continue as NIGO.",
+    "Reconcile bill-specific document and image evidence, resolve supported patient-card changes and route unresolved identity or unreadable values to review. Document gaps can continue as NIGO.",
   ],
   [
     "LOG-03",

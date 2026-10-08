@@ -75,3 +75,45 @@ test("updated benefits and document evidence are described without claiming live
     /each pharmacy\/optical bill/,
   );
 });
+
+test("image readings and patient-card corrections stay explained in both maps", () => {
+  const explanation = (prefix) => JSON.stringify(node(prefix).explanation);
+  const detail = (id) =>
+    JSON.stringify(business.nodes.find((n) => n.id === id).businessDetails);
+  assert.match(node("A-05").process.system_prompt, /AMBIGUOUS FIGURES/);
+  assert.match(explanation("A-05"), /actual column header/);
+  assert.match(node("A-07").process.system_prompt, /image_only/);
+  assert.match(explanation("A-07"), /no useful text/);
+  assert.match(node("R-02").process.code, /READ_CONFIDENCE_THRESHOLD = 0\.6/);
+  assert.match(explanation("R-02"), /0\.6 reading-confidence/);
+  assert.match(detail("document-check"), /below 0\.6 confidence/);
+  assert.match(node("API-003").process.code, /_ALT_MAX = 2/);
+  assert.match(explanation("API-003"), /up to two alternate/);
+  assert.match(detail("identify"), /up to two other same-payer/);
+  assert.match(node("API-003R").process.code, /review\.card_switch\.applied/);
+  assert.match(explanation("API-003R"), /without human review/);
+  assert.match(detail("finalize-documents"), /without a human pause/);
+});
+
+test("mixed scan routing, invoice evidence and API fallbacks match the updated source", () => {
+  const explanation = (prefix) => JSON.stringify(node(prefix).explanation);
+  assert.match(
+    node("A-11").process.system_prompt,
+    /ONE DOCUMENT, SEVERAL BILLS/,
+  );
+  assert.match(explanation("R-04"), /IP-labelled scan/);
+  assert.match(node("T-05").process.code, /def _invoice_review/);
+  assert.match(explanation("T-05"), /per-invoice review notes/);
+  assert.match(node("API-101").process.code, /def _vaccine_product/);
+  assert.match(explanation("API-101"), /vaccine products/);
+  for (const prefix of ["API-011", "API-012"]) {
+    assert.match(node(prefix).process.code, /"diagnosisTypeId": "ICD21"/);
+    assert.match(explanation(prefix), /ICD21/);
+    assert.match(explanation(prefix), /ICD-10 fallback/);
+    assert.match(explanation(prefix), /quantity zero/);
+  }
+  assert.match(node("API-013").process.code, /resent_after_409/);
+  assert.match(explanation("API-013"), /each returned invoice number once/);
+  assert.match(node("C-16").process.code, /D582/);
+  assert.match(explanation("C-16"), /thermometers D583/);
+});
